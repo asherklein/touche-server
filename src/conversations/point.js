@@ -1,8 +1,9 @@
 const mysql = require('../config/mysql')
 
-const newPoint = (convoId, title) => {
-        const pointQuery = `INSERT INTO points(topic_id, point_title) VALUES (${convoId}, '${title}')`
-        return mysql.query(pointQuery)
+const newPoint = (convo_id, title) => {
+        const query = `INSERT INTO points(convo_id, point_title) VALUES (${convo_id}, '${title}')`
+        return mysql.query(query)
+                .then(({ insertId: point_id }) => ({ point_id, convo_id, title }))
 }
 
 module.exports = { newPoint }

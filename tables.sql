@@ -1,45 +1,22 @@
 
-CREATE TABLE user (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  user_name varchar(355) NOT NULL,
-  pass_hash varchar(355) NOT NULL,
-  prd_price decimal(10,0) DEFAULT NULL,
-  cat_id int(11) NOT NULL,
-  vdr_id int(11) NOT NULL,
-  PRIMARY KEY (prd_id),
-  KEY fk_cat (cat_id),
-  KEY fk_vendor(vdr_id),
- 
-  CONSTRAINT products_ibfk_2 
-  FOREIGN KEY (vdr_id) 
-  REFERENCES vendors (vdr_id) 
-  ON DELETE NO ACTION 
-  ON UPDATE CASCADE,
- 
-  CONSTRAINT products_ibfk_1 
-  FOREIGN KEY (cat_id) 
-  REFERENCES categories (cat_id) 
-  ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
 CREATE TABLE users(
    id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
    user_name varchar(255) not null,
    secret varchar(255) not null
 ) ENGINE=InnoDB;
 
-CREATE TABLE topics(
+CREATE TABLE conversations(
    id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-   topic_title varchar(255) NOT NULL
+   topic varchar(255) NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE points(
    id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-   topic_id int NOT NULL,
+   convo_id int NOT NULL,
    point_title varchar(255) NOT NULL,
    CONSTRAINT points_fk_1 
-   FOREIGN KEY (topic_id) 
-   REFERENCES topics (id) 
+   FOREIGN KEY (convo_id) 
+   REFERENCES conversations (id) 
    ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
@@ -84,10 +61,18 @@ CREATE TABLE message_attacks(
 CREATE TABLE attack_support(
    from_id int NOT NULL,
    to_id int NOT NULL,
+   supporter int NOT NULL,
    support_type int NOT NULL,
+   
    PRIMARY KEY(from_id, to_id),
+   
    CONSTRAINT attack_support_fk_1 
    FOREIGN KEY (from_id, to_id) 
-   REFERENCES message_attacks (from_id, to_id) 
-   ON DELETE CASCADE
+   REFERENCES message_attacks (from_id, to_id)
+   ON DELETE CASCADE,
+
+   CONSTRAINT attack_support_fk_2 
+   FOREIGN KEY (supporter) 
+   REFERENCES users (id) 
+   
 ) ENGINE=InnoDB;

@@ -2,12 +2,12 @@ const mysql = require('../config/mysql')
 const { newPoint } = require('./point')
 
 const newConversation = (topic) => {
-    const convQuery = `INSERT INTO topics(topic_title) VALUES ('${topic}')`
+    const query = `INSERT INTO conversations(topic) VALUES ('${topic}')`
     
-    return mysql.query(convQuery)
-    .then(({ insertId: convoId }) => {
-        return newPoint(convoId, 'main')
-        .then(({ insertId: pointId }) => ({ conversation: convoId, point: pointId, topic }))
+    return mysql.query(query)
+    .then(({ insertId: convo_id }) => {
+        return newPoint(convo_id, 'main')
+        .then(({ point_id, title: point_title }) => ({ convo_id, topic, point_id, point_title }))
     })
 }
 
