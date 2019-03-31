@@ -7,13 +7,16 @@ const { startNewPoint, sendMessage, sendAttack, supportAttack } = require('./src
 
 io.on('connection', (socket) => {
 
-    const push = (type) => (results) => io.emit(type, results)
+    const push = (type, confirm) => (results) => {
+        io.emit(type, results)
+        confirm(results)
+    }
     console.log('new connection')
     
     // startconvo => convostarted
-    socket.on('startconvo', (title) => {
+    socket.on('startconvo', (title, confirm) => {
         newConversation(title)
-        .then(push('convostarted'))  
+        .then(push('convostarted', confirm))  
     })
     
     // startpoint => pointstarted
