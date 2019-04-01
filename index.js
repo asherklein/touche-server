@@ -1,18 +1,38 @@
 process.env.NODE_ENV != 'production' && require('dotenv').config()
 const server = require('http').createServer()
 const io = require('socket.io')(server)
-const { newConversation } = require('./src/conversations/conversation')
-const { startNewPoint, sendMessage, sendAttack, supportAttack } = require('./src/gameplay/gameplay')
+const { newConversation, myConvos } = require('./src/conversations/conversation')
+const { getMessagesForConvo } = require('./src/conversations/message')
 
+const { startNewPoint, sendMessage, sendAttack, supportAttack } = require('./src/gameplay/gameplay')
+const { is } = require('ramda')
 
 io.on('connection', (socket) => {
 
+    
     const push = (type, confirm) => (results) => {
         io.emit(type, results)
-        confirm(results)
+        is(Function, confirm) && confirm(results)
     }
+    const respond = (type, confirm) => (results) => {
+        socket.emit(type, results)
+        is(Function, confirm) && confirm(results)
+    }
+
     console.log('new connection')
+    // initial setup
+    myConvos().then(respond('convolist'))
     
+
+    socket.on('getmessages', (convo, confirm) => {
+        console.log(convo)
+        getMessagesForConvo(convo).then(res => {
+            console.log('res', res)
+        
+            confirm(res)
+        }) 
+    })
+
     // startconvo => convostarted
     socket.on('startconvo', (title, confirm) => {
         newConversation(title)

@@ -7,7 +7,8 @@ CREATE TABLE users(
 
 CREATE TABLE conversations(
    id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-   topic varchar(255) NOT NULL
+   topic varchar(255) NOT NULL,
+   started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 CREATE TABLE points(
