@@ -1,15 +1,26 @@
 process.env.NODE_ENV != 'production' && require('dotenv').config()
 const server = require('http').createServer()
 const io = require('socket.io')(server)
-const { newConversation, myConvos } = require('./src/conversations/conversation')
-const { getMessagesForConvo } = require('./src/conversations/message')
+const socketioauth = require('socketio-auth') 
 
-const { startNewPoint, sendMessage, sendAttack, supportAttack } = require('./src/gameplay/gameplay')
-const { is } = require('ramda')
+const { validUser } = require('./src/users/auth')
+// const { myConvos } = require('./src/conversations/conversation')
+const { getMessages } = require('./src/conversations/message')
+const { startConvo, startNewPoint, sendMessage, sendAttack, supportAttack } = require('./src/gameplay/gameplay')
+const { 
+    isEmpty, head,
+    is
+ } = require('ramda')
 
-io.on('connection', (socket) => {
-
+const authenticate = (socket, { user_id, secret }, fn) => {
     
+    validUser(user_id, secret).then(res => isEmpty(res) ? fn(new Error('Bad')) : fn(null, head(res)))
+}
+
+const postAuthenticate = (socket) => {
+// io.on('connection', (socket) => {
+
+     
     const push = (type, confirm) => (results) => {
         io.emit(type, results)
         is(Function, confirm) && confirm(results)
@@ -21,21 +32,21 @@ io.on('connection', (socket) => {
 
     console.log('new connection')
     // initial setup
-    myConvos().then(respond('convolist'))
-    
+    // myConvos().then(respond('convolist'))
+    getMessages().then(respond('initmsgs'))
 
-    socket.on('getmessages', (convo, confirm) => {
-        console.log(convo)
-        getMessagesForConvo(convo).then(res => {
-            console.log('res', res)
+    // socket.on('getmessages', (convo, confirm) => {
+    //     console.log(convo)
+    //     getMessagesForConvo(convo).then(res => {
+    //         console.log('res', res)
         
-            confirm(res)
-        }) 
-    })
+    //         confirm(res)
+    //     }) 
+    // })
 
     // startconvo => convostarted
-    socket.on('startconvo', (title, confirm) => {
-        newConversation(title)
+    socket.on('startconvo', (title, initial, confirm) => {
+        startConvo(title, initial)
         .then(push('convostarted', confirm))  
     })
     
@@ -85,9 +96,11 @@ io.on('connection', (socket) => {
         .then(push('opposed'))  
     })
 
-})
+}
+// ) 
 
 //support / oppose
+socketioauth(io, { authenticate, postAuthenticate })
 
 const PORT = process.env.PORT || 5000
 server.listen(PORT, () => console.log(`listening on: ${PORT}`))
