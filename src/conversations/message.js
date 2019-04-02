@@ -1,10 +1,10 @@
 const mysql = require('../config/mysql')
 // const { groupBy } = require('ramda')
 
-const createMessage = (sent_by, sent_at, content) => {
-    const query = `INSERT INTO messages(sent_by, sent_at, content) VALUES (${sent_by}, ${sent_at}, ${content})`
+const createMessage = (sent_by, content) => {
+    const query = `INSERT INTO messages(sent_by, content) VALUES (${sent_by}, '${content}')`
     return mysql.query(query)
-        .then(({ insertId: message_id }) => ({ message_id, sent_by, sent_at, content }))
+        .then(({ insertId: message_id }) => ({ message_id, sent_by, content }))
 }
 
 const getMessagesForConvo = (convo_id) => {
@@ -30,7 +30,7 @@ const getMessages = (convo_ids, limit, start, end) => {
     AND P.convo_id = C.id
     AND U.id = M.sent_by
     ${ convo_ids ? `AND C.id = ${convo_ids}` : `` }`
-    console.log('query', query)
+ 
     return mysql.query(query)
         .then(rows =>
             rows.map(({ id: message_id, ...rest }) =>

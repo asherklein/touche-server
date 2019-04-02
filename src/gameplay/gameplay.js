@@ -3,16 +3,16 @@ const { createMessage, relateMessageToPoint } = require('../conversations/messag
 const { createAttackRecord, supportAttack } = require('../conversations/attack')
 const { createConvo } = require('../conversations/conversation')
 
-const startConvo = (topic, { sent_by, sent_at, content }) => {
+const startConvo = (topic, { sent_by, content }) => {
 
-    const initialP = createMessage(sent_by, sent_at, content)
+    const initialP = createMessage(sent_by, content)
         .then((msg) => createAttackRecord(msg.message_id, msg.message_id)
             .then((attack) => ({ ...msg, ...attack }))
         )
 
     return createConvo(topic)
         .then(({ convo_id }) => initialP.then(initial =>
-            startNewPoint(convo_id, 'main', initial)
+            startNewPoint(convo_id, 'main', initial.message_id)
                 .then(({ point_id, title: point_title }) => ({ convo_id, topic, point_id, point_title, ...initial }))
         ))
 

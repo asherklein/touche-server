@@ -46,6 +46,7 @@ const postAuthenticate = (socket) => {
 
     // startconvo => convostarted
     socket.on('startconvo', (title, initial, confirm) => {
+        console.log('initial', initial)
         startConvo(title, initial)
         .then(push('convostarted', confirm))  
     })
